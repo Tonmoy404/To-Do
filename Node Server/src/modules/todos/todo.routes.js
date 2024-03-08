@@ -6,6 +6,8 @@ const {
   getAllTodo,
   getTodoById,
   updateTodo,
+  deleteTodo,
+  getTodosByUserId,
 } = require("./todo.controller");
 
 module.exports = (app) => {
@@ -15,7 +17,10 @@ module.exports = (app) => {
 
   app.route("/todo/all").get(AuthStrategy, getAllTodo);
   app.route("/todo/:id").get(AuthStrategy, getTodoById);
+  app.route("/todo/all/:uid").get(AuthStrategy, getTodosByUserId);
   app
     .route("/todo/:id")
     .patch(AuthStrategy, validate(updateTodoSchema), updateTodo);
+
+  app.route("/todo/:id").delete(AuthStrategy, deleteTodo);
 };

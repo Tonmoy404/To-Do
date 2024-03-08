@@ -39,6 +39,22 @@ async function getAllTodo(req, res) {
   }
 }
 
+async function getTodosByUserId(req, res) {
+  try {
+    const userID = req.params.uid;
+
+    console.log("the UserID---", userID);
+
+    const todos = await Todo.findAll({ where: { createdBy: userID } });
+    if (!todos) {
+      return res.status(404).send("No Todo Found");
+    }
+  } catch (err) {
+    console.log("Cannot fetch todo...The Error---->", err);
+    return res.status(500).send("Internal Server Error");
+  }
+}
+
 async function getTodoById(req, res) {
   try {
     const { id } = req.params;
@@ -71,7 +87,7 @@ async function updateTodo(req, res) {
       return res.status(404).send("Todo was not found");
     }
     if (todo.createdBy !== userID) {
-      return res.status(403).send("Unauthorized Use");
+      return res.status(401).send("Unauthorized Use");
     }
 
     const parsedDueDate = new Date(dueDate);
@@ -95,7 +111,30 @@ async function updateTodo(req, res) {
   }
 }
 
+async function deleteTodo(req, res) {
+  try {
+    const { id } = req.params;
+    const userID = req.user.id;
+
+    const todo = await Todo.findOne({ where: { id } });
+    console.log("The Todo--------", todo);
+    if (todo.createdBy !== userID) {
+      return res.status(401).send("Unauthorized User");
+    }
+
+    await todo.destroy();
+
+    console.log("Todo Deleted Successfully");
+    return res.status(200).send("Todo Deleted Successfully");
+  } catch (err) {
+    console.log("Cannot delete todo....The Error---->", err);
+    return res.status(500).send("Internal Server Error");
+  }
+}
+
 module.exports.createTodo = createTodo;
 module.exports.getAllTodo = getAllTodo;
 module.exports.getTodoById = getTodoById;
 module.exports.updateTodo = updateTodo;
+module.exports.deleteTodo = deleteTodo;
+module.exports.getTodosByUserId = getTodosByUserId;
