@@ -41,14 +41,12 @@ async function getAllTodo(req, res) {
 
 async function getTodosByUserId(req, res) {
   try {
-    const userID = req.params.uid;
-
-    console.log("the UserID---", userID);
-
+    const userID = req.user.id;
     const todos = await Todo.findAll({ where: { createdBy: userID } });
-    if (!todos) {
+    if (todos.length === 0) {
       return res.status(404).send("No Todo Found");
     }
+    return res.status(200).json(todos);
   } catch (err) {
     console.log("Cannot fetch todo...The Error---->", err);
     return res.status(500).send("Internal Server Error");
